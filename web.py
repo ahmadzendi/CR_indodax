@@ -71,7 +71,7 @@ async def websocket_page():
         <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
         <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
         <style>
-            body { font-family: Arial, sans-serif; margin: 2px; }
+            body { font-family: Arial, sans-serif; margin: 8px; padding: 0; }
             table.dataTable thead th { font-weight: bold; border-bottom: 2px solid #ddd; }
             table.dataTable { border-bottom: 2px solid #ddd; }
             .level-0 { color: #000000 !important; }         /* Hitam */
@@ -105,6 +105,9 @@ async def websocket_page():
                 align-items: center;
                 justify-content: flex-start; /* elemen mulai dari kiri */
                 gap: 20px; /* jarak antar elemen */
+                margin-top: 0;      /* <-- tambahkan ini */
+                margin-left: 10px;
+                padding-top: 0; 
             }
             .header-chatroom a {color: red;}
         </style>
