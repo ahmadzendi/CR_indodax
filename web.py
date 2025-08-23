@@ -154,9 +154,7 @@ async def websocket_page():
             var data = JSON.parse(event.data);
             updateTable(data.history);
         };
-        ws.onclose = function() {
-            alert("WebSocket connection closed!");
-        };
+        
         function connectWS() {
             var ws = new WebSocket((location.protocol === "https:" ? "wss://" : "ws://") + location.host + "/ws");
             ws.onmessage = function(event) {
