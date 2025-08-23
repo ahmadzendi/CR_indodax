@@ -265,7 +265,7 @@ async def index():
     </head>
     <body>
     <h2>Top Chatroom Indodax</h2>
-    <a href="/riwayat" class="btn-history">Chat Terkini</a>
+    <a href="https://cr-indodax.up.railway.app/" class="btn-history">Chat Terkini</a>
     <table id="ranking" class="display" style="width:100%">
         <thead>
         <tr>
