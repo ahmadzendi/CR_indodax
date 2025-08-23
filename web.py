@@ -67,46 +67,52 @@ async def websocket_page():
     <html>
     <head>
         <title>Chatroom</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <!-- DataTables CSS -->
         <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css"/>
+        <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/responsive/2.5.0/css/responsive.dataTables.min.css"/>
+        <!-- jQuery & DataTables JS -->
         <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
         <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+        <script src="https://cdn.datatables.net/responsive/2.5.0/js/dataTables.responsive.min.js"></script>
         <style>
-            body { font-family: Arial, sans-serif; margin: 30px; }
-            table.dataTable thead th { font-weight: bold; border-bottom: 2px solid #ddd; }
-            table.dataTable { border-bottom: 2px solid #ddd; }
-            .level-0 { color: #000000 !important; }         /* Hitam */
-            .level-1 { color: #CD7F32 !important; }       /* Coklat */
-            .level-2 { color: #FFA500 !important; }       /* Emas */
-            .level-3 { color: #0000FF !important; }       /* Biru */
-            .level-4 { color: #32CD32 !important; }       /* Hijau */
-            .level-5 { color: #FF00FF !important; }       /* Ungu */
-            th, td {
-                vertical-align: top;
-            }
-            th:nth-child(1), td:nth-child(1) { /* Waktu */
-                width: 130px;
-                min-width: 110px;
-                max-width: 150px;
-                white-space: nowrap;
-            }
-            th:nth-child(2), td:nth-child(2) { /* Username */
-                width: 120px;
-                min-width: 90px;
-                max-width: 150px;
-                white-space: nowrap;
-            }
-            th:nth-child(3), td:nth-child(3) { /* Chat */
-                width: auto;
-                word-break: break-word;
-                white-space: pre-line;
-            }
+            body { font-family: Arial, sans-serif; margin: 16px; }
             .header-chatroom {
                 display: flex;
                 align-items: center;
-                justify-content: flex-start; /* elemen mulai dari kiri */
-                gap: 20px; /* jarak antar elemen */
+                flex-wrap: wrap;
+                gap: 12px;
             }
-            .header-chatroom a {color: red;}
+            .header-chatroom h2 {
+                font-size: 1.3em;
+                margin: 0;
+            }
+            .header-chatroom a {
+                color: red;
+                font-size: 1em;
+            }
+            table.dataTable thead th { font-weight: bold; border-bottom: 2px solid #ddd; }
+            table.dataTable { border-bottom: 2px solid #ddd; }
+            .level-0 { color: #000000 !important; }
+            .level-1 { color: #CD7F32 !important; }
+            .level-2 { color: #FFA500 !important; }
+            .level-3 { color: #0000FF !important; }
+            .level-4 { color: #32CD32 !important; }
+            .level-5 { color: #FF00FF !important; }
+            th, td { vertical-align: top; }
+            /* Responsive tweaks */
+            @media (max-width: 700px) {
+                body { margin: 6px; }
+                .header-chatroom h2 { font-size: 1.05em; }
+                .header-chatroom a { font-size: 0.95em; }
+                th, td { font-size: 0.95em; padding: 6px 4px; }
+            }
+            @media (max-width: 480px) {
+                .header-chatroom { flex-direction: column; align-items: flex-start; gap: 4px; }
+                .header-chatroom h2 { font-size: 1em; }
+                .header-chatroom a { font-size: 0.9em; }
+                th, td { font-size: 0.9em; padding: 4px 2px; }
+            }
         </style>
     </head>
     <body>
@@ -114,7 +120,7 @@ async def websocket_page():
         <h2>Chatroom Indodax</h2>
         <a>* Maksimal 1000 chat terakhir</a>
     </div>
-    <table id="history" class="display" style="width:100%">
+    <table id="history" class="display responsive nowrap" style="width:100%">
         <thead>
             <tr>
                 <th>Waktu</th>
@@ -130,11 +136,12 @@ async def websocket_page():
             "paging": false,
             "info": false,
             "searching": true,
+            "responsive": true,
             "language": {
                 "emptyTable": "Belum ada chat"
             }
         });
-
+    
         function updateTable(history) {
             table.clear();
             history.forEach(function(chat) {
@@ -148,13 +155,7 @@ async def websocket_page():
             });
             table.draw();
         }
-
-        var ws = new WebSocket((location.protocol === "https:" ? "wss://" : "ws://") + location.host + "/ws");
-        ws.onmessage = function(event) {
-            var data = JSON.parse(event.data);
-            updateTable(data.history);
-        };
-        
+    
         function connectWS() {
             var ws = new WebSocket((location.protocol === "https:" ? "wss://" : "ws://") + location.host + "/ws");
             ws.onmessage = function(event) {
@@ -162,7 +163,7 @@ async def websocket_page():
                 if (!data.ping) updateTable(data.history);
             };
             ws.onclose = function() {
-                setTimeout(connectWS, 1000); // reconnect otomatis setelah 2 detik
+                setTimeout(connectWS, 1000); // reconnect otomatis setelah 1 detik
             };
         }
         connectWS();
