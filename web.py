@@ -78,7 +78,7 @@ async def websocket_page():
             .level-1 { color: #CD7F32 !important; }       /* Coklat */
             .level-2 { color: #FFA500 !important; }       /* Emas */
             .level-3 { color: #0000FF !important; }       /* Biru */
-            .level-4 { color: #228B22 !important; }       /* Hijau */
+            .level-4 { color: #32CD32 !important; }       /* Hijau */
             .level-5 { color: #FF00FF !important; }       /* Ungu */
             th, td {
                 vertical-align: top;
