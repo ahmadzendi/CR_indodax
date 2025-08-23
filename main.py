@@ -19,7 +19,7 @@ async def polling_chat():
     print("Polling chat Indodax aktif...")
     while True:
         try:
-            response = requests.get(url, verify=False)
+            response = requests.get(url)
             data = response.json()
             updated = False
             if data.get("success"):
