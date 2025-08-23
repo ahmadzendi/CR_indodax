@@ -2,4 +2,4 @@ flask
 requests
 python-telegram-bot
 fastapi
-uvicorn
+uvicorn[standard]
