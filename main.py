@@ -168,10 +168,11 @@ async def websocket_endpoint(websocket: WebSocket):
     await websocket.accept()
     active_connections.add(websocket)
     try:
-        # Kirim data awal saat client connect
         await websocket.send_text(json.dumps({"history": history[-1000:]}))
         while True:
-            await asyncio.sleep(60)
+            await asyncio.sleep(30)  # setiap 30 detik
+            # Kirim ping agar koneksi tetap hidup
+            await websocket.send_text(json.dumps({"ping": True}))
     except WebSocketDisconnect:
         pass
     finally:
