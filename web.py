@@ -44,18 +44,6 @@ async def polling_chat():
                         await ws.send_text(msg)
                     except Exception as e:
                         print("Harap refresh broo!:", e)
-                        function connectWS() {
-                            var ws = new WebSocket((location.protocol === "https:" ? "wss://" : "ws://") + location.host + "/ws");
-                            ws.onmessage = function(event) {
-                                var data = JSON.parse(event.data);
-                                if (!data.ping) updateTable(data.history);
-                            };
-                            ws.onclose = function() {
-                                // Tidak ada alert, cukup reconnect otomatis
-                                setTimeout(connectWS, 2000); // reconnect setelah 2 detik
-                            };
-                        }
-                        connectWS();
                         to_remove.add(ws)
                 for ws in to_remove:
                     active_connections.remove(ws)
@@ -169,6 +157,17 @@ async def websocket_page():
         ws.onclose = function() {
             alert("WebSocket connection closed!");
         };
+        function connectWS() {
+            var ws = new WebSocket((location.protocol === "https:" ? "wss://" : "ws://") + location.host + "/ws");
+            ws.onmessage = function(event) {
+                var data = JSON.parse(event.data);
+                if (!data.ping) updateTable(data.history);
+            };
+            ws.onclose = function() {
+                setTimeout(connectWS, 1000); // reconnect otomatis setelah 2 detik
+            };
+        }
+        connectWS();
     </script>
     </body>
     </html>
