@@ -78,7 +78,7 @@ async def websocket_page():
             .level-1 { color: #CD7F32 !important; }       /* Coklat */
             .level-2 { color: #FFA500 !important; }       /* Emas */
             .level-3 { color: #0000FF !important; }       /* Biru */
-            .level-4 { color: #00FF00 !important; }       /* Hijau */
+            .level-4 { color: #14FA00 !important; }       /* Hijau */
             .level-5 { color: #FF00FF !important; }       /* Ungu */
             th, td {
                 vertical-align: top;
@@ -111,7 +111,7 @@ async def websocket_page():
     </head>
     <body>
     <div class="header-chatroom">
-        <h2>History Chatroom Indodax</h2>
+        <h2>Chatroom Indodax</h2>
         <a>* Maksimal 1000 chat terakhir</a>
     </div>
     <table id="history" class="display" style="width:100%">
