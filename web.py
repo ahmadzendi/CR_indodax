@@ -76,20 +76,20 @@ async def websocket_page():
         <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
         <script src="https://cdn.datatables.net/responsive/2.5.0/js/dataTables.responsive.min.js"></script>
         <style>
-            body { font-family: Arial, sans-serif; margin: 10px; }
+            body { font-family: Arial, sans-serif; margin: 30px; }
             .header-chatroom {
                 display: flex;
                 align-items: center;
                 flex-wrap: wrap;
-                gap: 8px;
+                gap: 12px;
             }
             .header-chatroom h2 {
-                font-size: 1em;
+                font-size: 1.2em;
                 margin: 0;
             }
             .header-chatroom a {
                 color: red;
-                font-size: 0.85em;
+                font-size: 1em;
             }
             table.dataTable thead th { font-weight: bold; border-bottom: 2px solid #ddd; }
             table.dataTable { border-bottom: 2px solid #ddd; }
@@ -99,18 +99,20 @@ async def websocket_page():
             .level-3 { color: #0000FF !important; }
             .level-4 { color: #32CD32 !important; }
             .level-5 { color: #FF00FF !important; }
-            th, td { vertical-align: top; font-size: 0.8em; padding: 4px 2px; }
+            th, td { vertical-align: top; }
+            th:nth-child(1), td:nth-child(1) { width: 130px; min-width: 110px; max-width: 150px; white-space: nowrap; }
+            th:nth-child(2), td:nth-child(2) { width: 120px; min-width: 90px; max-width: 150px; white-space: nowrap; }
+            th:nth-child(3), td:nth-child(3) { width: auto; word-break: break-word; white-space: pre-line; }
             @media (max-width: 700px) {
-                body { margin: 2px; }
-                .header-chatroom h2 { font-size: 0.85em; }
-                .header-chatroom a { font-size: 0.7em; }
-                th, td { font-size: 0.7em; padding: 3px 1px; }
+                body { margin: 8px; }
+                .header-chatroom { gap: 6px; }
+                .header-chatroom h2 { font-size: 1em; }
+                .header-chatroom a { font-size: 0.95em; }
             }
             @media (max-width: 480px) {
-                .header-chatroom { flex-direction: column; align-items: flex-start; gap: 1px; }
-                .header-chatroom h2 { font-size: 0.8em; }
-                .header-chatroom a { font-size: 0.65em; }
-                th, td { font-size: 0.65em; padding: 2px 1px; }
+                .header-chatroom { flex-direction: column; align-items: flex-start; gap: 2px; }
+                .header-chatroom h2 { font-size: 0.95em; }
+                .header-chatroom a { font-size: 0.85em; }
             }
         </style>
     </head>
