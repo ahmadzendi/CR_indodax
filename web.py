@@ -76,20 +76,20 @@ async def websocket_page():
         <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
         <script src="https://cdn.datatables.net/responsive/2.5.0/js/dataTables.responsive.min.js"></script>
         <style>
-            body { font-family: Arial, sans-serif; margin: 16px; }
+            body { font-family: Arial, sans-serif; margin: 10px; }
             .header-chatroom {
                 display: flex;
                 align-items: center;
                 flex-wrap: wrap;
-                gap: 12px;
+                gap: 8px;
             }
             .header-chatroom h2 {
-                font-size: 1.3em;
+                font-size: 1.1em;
                 margin: 0;
             }
             .header-chatroom a {
                 color: red;
-                font-size: 1em;
+                font-size: 0.95em;
             }
             table.dataTable thead th { font-weight: bold; border-bottom: 2px solid #ddd; }
             table.dataTable { border-bottom: 2px solid #ddd; }
@@ -99,19 +99,18 @@ async def websocket_page():
             .level-3 { color: #0000FF !important; }
             .level-4 { color: #32CD32 !important; }
             .level-5 { color: #FF00FF !important; }
-            th, td { vertical-align: top; }
-            /* Responsive tweaks */
+            th, td { vertical-align: top; font-size: 0.98em; padding: 6px 4px; }
             @media (max-width: 700px) {
-                body { margin: 6px; }
-                .header-chatroom h2 { font-size: 1.05em; }
-                .header-chatroom a { font-size: 0.95em; }
-                th, td { font-size: 0.95em; padding: 6px 4px; }
-            }
-            @media (max-width: 480px) {
-                .header-chatroom { flex-direction: column; align-items: flex-start; gap: 4px; }
+                body { margin: 4px; }
                 .header-chatroom h2 { font-size: 1em; }
                 .header-chatroom a { font-size: 0.9em; }
-                th, td { font-size: 0.9em; padding: 4px 2px; }
+                th, td { font-size: 0.92em; padding: 4px 2px; }
+            }
+            @media (max-width: 480px) {
+                .header-chatroom { flex-direction: column; align-items: flex-start; gap: 2px; }
+                .header-chatroom h2 { font-size: 0.98em; }
+                .header-chatroom a { font-size: 0.85em; }
+                th, td { font-size: 0.85em; padding: 3px 1px; }
             }
         </style>
     </head>
