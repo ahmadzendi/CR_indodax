@@ -13,9 +13,8 @@ WIB = timezone(timedelta(hours=7))
 url = "https://indodax.com/api/v2/chatroom/history"
 jsonl_file = "chat_indodax.jsonl"
 request_file = "last_request.json"
-TOKEN = os.environ.get("TOKEN", "")  # Ganti dengan token bot kamu
+TOKEN = os.environ.get("TOKEN", "")
 
-# --- Polling Chat Indodax ---
 def polling_chat():
     seen_ids = set()
     print("Polling chat Indodax aktif... (Ctrl+C untuk berhenti)")
@@ -45,7 +44,7 @@ def polling_chat():
         except Exception as e:
             print(f"Error polling chat: {e}")
         time.sleep(1)  # polling setiap 1 detik
-
+        
 # --- Bot Telegram ---
 def parse_time(s):
     return datetime.strptime(s, "%Y-%m-%d %H:%M")
@@ -145,58 +144,7 @@ async def rank_berdasarkan_username(update: Update, context: ContextTypes.DEFAUL
         }, f)
     await update.message.reply_text("Permintaan ranking berdasarkan username diterima! Silakan cek website untuk hasilnya.")
 
-# --- POLLING CHATROOM UNTUK LIVE CHATROOM ---
-url = "https://indodax.com/api/v2/chatroom/history"
-WIB_OFFSET = 7 * 3600
-history = []
-seen_ids = set()
-active_connections = set()
-
-async def polling_chat():
-    global history
-    print("Polling chat Indodax aktif...")
-    while True:
-        try:
-            response = requests.get(url)
-            data = response.json()
-            updated = False
-            if data.get("success"):
-                chat_list = data["data"]["content"]
-                for chat in chat_list:
-                    if chat['id'] not in seen_ids:
-                        seen_ids.add(chat['id'])
-                        ts = chat["timestamp"]
-                        chat_time = time.strftime('%Y-%m-%d %H:%M:%S', time.gmtime(ts + WIB_OFFSET))
-                        chat["timestamp_wib"] = chat_time
-                        history.append(chat)
-                        updated = True
-                history[:] = history[-1000:]
-            else:
-                print("Gagal ambil data dari API.")
-            # Jika ada update, broadcast ke semua client websocket
-            if updated and active_connections:
-                msg = json.dumps({"history": history[-1000:]})
-                to_remove = set()
-                for ws in list(active_connections):
-                    try:
-                        await ws.send_text(msg)
-                    except Exception as e:
-                        print("WebSocket error, removing connection:", e)
-                        to_remove.add(ws)
-                for ws in to_remove:
-                    active_connections.remove(ws)
-        except Exception as e:
-            print("Error polling:", e)
-        await asyncio.sleep(1)
-
-@asynccontextmanager
-async def lifespan(app: FastAPI):
-    task = asyncio.create_task(polling_chat())
-    yield
-    task.cancel()
-
-app = FastAPI(lifespan=lifespan)
-
+app = Flask(__name__)
 # --- RANKING CHAT DARI FILE chat_indodax.jsonl ---
 def get_ranking():
     try:
@@ -228,13 +176,15 @@ def get_ranking():
                     user_info[uname] = {
                         "count": 1,
                         "last_content": chat["content"],
-                        "last_time": chat["timestamp_wib"]
+                        "last_time": chat["timestamp_wib"],
+                        "level": chat.get("level", 0)
                     }
                 else:
                     user_info[uname]["count"] += 1
                     if t_chat > datetime.strptime(user_info[uname]["last_time"], "%Y-%m-%d %H:%M:%S"):
                         user_info[uname]["last_content"] = chat["content"]
                         user_info[uname]["last_time"] = chat["timestamp_wib"]
+                        user_info[uname]["level"] = chat.get("level", 0)
     except Exception as e:
         return [], "Tidak ada DATA", "", "", []
 
@@ -244,15 +194,13 @@ def get_ranking():
         ranking = sorted(user_info.items(), key=lambda x: x[1]["count"], reverse=True)
     return ranking, None, req["start"], req["end"], usernames
 
-# --- ROUTES ---
-
-@app.get("/", response_class=HTMLResponse)
-async def index():
+@app.route("/")
+def index():
     html = """
-    <!DOCTYPE html>
+<!DOCTYPE html>
     <html>
     <head>
-        <title>Chatroom</title>
+        <title>Ranking Chat Indodax</title>
         <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css"/>
         <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
         <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
@@ -261,6 +209,44 @@ async def index():
             table.dataTable thead th { font-weight: bold; }
             .btn-history { display:inline-block; margin-bottom:20px; padding:8px 16px; background:#00abff; color:#fff; border:none; border-radius:4px; text-decoration:none;}
             .btn-history:hover { background:#0056b3; }
+            .level-0 { color: #000000 !important; }         /* Hitam */
+            .level-1 { color: #CD7F32 !important; }       /* Coklat */
+            .level-2 { color: #FFA500 !important; }       /* Emas */
+            .level-3 { color: #0000FF !important; }       /* Biru */
+            .level-4 { color: #00FF00 !important; }       /* Hijau */
+            .level-5 { color: #FF00FF !important; }       /* Ungu */
+            th, td {
+                vertical-align: top;
+            }
+            th:nth-child(1), td:nth-child(1) { /* No */
+                width: 10px;
+                min-width: 10px;
+                max-width: 20px;
+                white-space: nowrap;
+            }
+            th:nth-child(2), td:nth-child(2) { /* Username */
+                width: 120px;
+                min-width: 90px;
+                max-width: 150px;
+                white-space: nowrap;
+            }
+            th:nth-child(3), td:nth-child(3) { /* Total */
+                width: 10px;
+                min-width: 10px;
+                max-width: 35px;
+                white-space: nowrap;
+            }
+            th:nth-child(4), td:nth-child(4) { /* Chat terakhir */
+                width: auto;
+                word-break: break-word;
+                white-space: pre-line;
+            }
+            th:nth-child(5), td:nth-child(5) { /* Waktu */
+                width: 130px;
+                min-width: 110px;
+                max-width: 150px;
+                white-space: nowrap;
+            }
         </style>
     </head>
     <body>
@@ -269,11 +255,11 @@ async def index():
     <table id="ranking" class="display" style="width:100%">
         <thead>
         <tr>
-            <th width="1%">No</th>
-            <th width="10%">Username</th>
-            <th width="1%">Total</th>
-            <th style="text-align: center;" width="50%">Terakhir Chat</th>
-            <th width="20%">Waktu Chat</th>
+            <th>No</th>
+            <th>Username</th>
+            <th>Total</th>
+            <th>Terakhir Chat</th>
+            <th>Waktu Chat</th>
         </tr>
         </thead>
         <tbody>
@@ -302,10 +288,10 @@ async def index():
                 for (var i = 0; i < data.ranking.length; i++) {
                     var row = data.ranking[i];
                     table.row.add([
-                        i+1, // index
-                        row.username,
+                        i+1,
+                        `<span class="level-${row.level}">${row.username}</span>`,
                         row.count,
-                        row.last_content,
+                        `<span class="level-${row.level}">${row.last_content}</span>`,
                         row.last_time
                     ]);
                 }
@@ -320,23 +306,23 @@ async def index():
     </body>
     </html>
     """
-    return HTMLResponse(html)
+    return render_template_string(html)
 
-@app.get("/data")
-async def data():
+@app.route("/data")
+def data():
     ranking, error, t_awal, t_akhir, usernames = get_ranking()
     if error or not ranking:
-        return JSONResponse({"error": "Tidak ada DATA", "ranking": [], "t_awal": "", "t_akhir": ""})
+        return jsonify({"error": "Tidak ada DATA", "ranking": [], "t_awal": "", "t_akhir": ""})
     data = []
-    for idx, (user, info) in enumerate(ranking, 1):
+    for user, info in ranking:
         data.append({
-            "no": idx,
             "username": user,
             "count": info["count"],
             "last_content": info["last_content"],
-            "last_time": info["last_time"]
+            "last_time": info["last_time"],
+            "level": info.get("level", 0)
         })
-    return JSONResponse({
+    return jsonify({
         "ranking": data,
         "t_awal": t_awal,
         "t_akhir": t_akhir
@@ -348,10 +334,9 @@ def run_flask():
 
 # --- Main ---
 if __name__ == "__main__":
-    # Jalankan polling chat di thread terpisah
+    # Jalankan Flask di thread terpisah
     t1 = threading.Thread(target=polling_chat, daemon=True)
     t1.start()
-
     # Jalankan Flask di thread terpisah
     t2 = threading.Thread(target=run_flask, daemon=True)
     t2.start()
